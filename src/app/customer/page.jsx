@@ -62,8 +62,9 @@ export default function CustomerRegistration() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('Form data before validation:', formData);
         const {
             customerName,
             phoneNumber,
@@ -79,6 +80,8 @@ export default function CustomerRegistration() {
             investmentAmount,
             paymentMethod,
             submittedDocuments,
+            nominee1,
+            nominee2,
         } = formData;
 
         if (
@@ -98,26 +101,31 @@ export default function CustomerRegistration() {
             !submittedDocuments
         ) {
             setError('All customer fields are required');
+            console.log('Validation error: All customer fields are required');
             return;
         }
 
         if (phoneNumber.length !== 10 || whatsappNumber.length !== 10) {
             setError('Phone numbers must be 10 digits');
+            console.log('Validation error: Phone numbers must be 10 digits');
             return;
         }
 
         if (aadharNumber.length !== 12) {
             setError('Aadhar number must be 12 digits');
+            console.log('Validation error: Aadhar number must be 12 digits');
             return;
         }
 
         if (bankAccountNumber.length < 9 || bankAccountNumber.length > 15) {
             setError('Bank account number must be between 9 and 15 digits');
+            console.log('Validation error: Bank account number must be between 9 and 15 digits');
             return;
         }
 
         if (submittedDocuments.type !== 'application/pdf') {
             setError('Documents must be in PDF format');
+            console.log('Validation error: Documents must be in PDF format');
             return;
         }
 
@@ -134,6 +142,7 @@ export default function CustomerRegistration() {
                 !nominee1.documents
             ) {
                 setError('All nominee 1 fields are required');
+                console.log('Validation error: All nominee 1 fields are required');
                 return;
             }
 
@@ -143,6 +152,7 @@ export default function CustomerRegistration() {
                 nominee1.documents.type !== 'application/pdf'
             ) {
                 setError('Nominee 1 phone numbers must be 10 digits and documents must be in PDF format');
+                console.log('Validation error: Nominee 1 phone numbers must be 10 digits and documents must be in PDF format');
                 return;
             }
         }
@@ -160,6 +170,7 @@ export default function CustomerRegistration() {
                 !nominee2.documents
             ) {
                 setError('All nominee 2 fields are required');
+                console.log('Validation error: All nominee 2 fields are required');
                 return;
             }
 
@@ -169,12 +180,71 @@ export default function CustomerRegistration() {
                 nominee2.documents.type !== 'application/pdf'
             ) {
                 setError('Nominee 2 phone numbers must be 10 digits and documents must be in PDF format');
+                console.log('Validation error: Nominee 2 phone numbers must be 10 digits and documents must be in PDF format');
                 return;
             }
         }
 
         setError('');
-        console.log('Form submitted', formData);
+        console.log('Form data after validation:', formData);
+
+        const convertFileToBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
+            });
+        };
+
+        const hasNominee1 = showNominee1 && nominee1.name && nominee1.address && nominee1.phoneNumber && nominee1.whatsappNumber && nominee1.email && nominee1.accountNumber && nominee1.ifscCode && nominee1.documents;
+        const hasNominee2 = showNominee2 && nominee2.name && nominee2.address && nominee2.phoneNumber && nominee2.whatsappNumber && nominee2.email && nominee2.accountNumber && nominee2.ifscCode && nominee2.documents;
+
+        try {
+            const submittedDocumentsBase64 = await convertFileToBase64(submittedDocuments);
+            const nominee1DocumentsBase64 = hasNominee1 ? await convertFileToBase64(nominee1.documents) : null;
+            const nominee2DocumentsBase64 = hasNominee2 ? await convertFileToBase64(nominee2.documents) : null;
+
+            const response = await fetch('/api/customer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    customerName,
+                    phoneNumber,
+                    email,
+                    whatsappNumber,
+                    address,
+                    aadharNumber,
+                    panNumber,
+                    bankAccountNumber,
+                    bankAccountName,
+                    ifscCode,
+                    schemeName,
+                    investmentAmount,
+                    paymentMethod,
+                    submittedDocuments: submittedDocumentsBase64,
+                    hasNominee1,
+                    hasNominee2,
+                    nominee1: hasNominee1 ? { ...nominee1, documents: nominee1DocumentsBase64 } : null,
+                    nominee2: hasNominee2 ? { ...nominee2, documents: nominee2DocumentsBase64 } : null,
+                }),
+            });
+
+            const result = await response.json();
+            console.log('API response:', result);
+            if (!result.success) {
+                setError(result.error);
+                console.log('API error:', result.error);
+            } else {
+                console.log('Form submitted successfully', result);
+            }
+        } catch (error) {
+            setError('An error occurred while submitting the form');
+            console.error('Form submission error:', error);
+        }
+
         // Reset form
         setFormData({
             customerName: '',
