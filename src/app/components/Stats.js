@@ -67,10 +67,6 @@ const Stats = ({ registrants }) => {
           <h3 className="text-lg font-bold text-blue-600">Withdrawals</h3>
           <p className="text-2xl text-gray-800">₹0</p>
         </div>
-        {/* <div className="p-4 bg-blue-100 rounded shadow">
-          <h3 className="text-lg font-bold text-blue-600">Other Stats</h3>
-          <p className="text-2xl text-gray-800">N/A</p>
-        </div> */}
       </div>
     </div>
   );

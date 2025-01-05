@@ -1,6 +1,5 @@
-
-import RegistrantsList from '@/app/components/RegistrantsList';
-import Sidebar from '@/app/components/Sidebar';
+import Sidebar from "@/app/components/Sidebar";
+import Stats from "@/app/components/Stats";
 
 const Dashboard = () => {
   const registrants = Array.from({ length: 30 }, (_, i) => ({
@@ -16,9 +15,7 @@ const Dashboard = () => {
     <div className="flex bg-sky-50">
       <Sidebar />
       <div className="flex-1 p-8 pt-24">
-        <div className="dashboard">
-          <RegistrantsList />
-        </div>
+        <Stats registrants={registrants} />
       </div>
     </div>
   );
