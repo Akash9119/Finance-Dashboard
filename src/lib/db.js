@@ -1,15 +1,24 @@
-import mysql from 'mysql2/promise';
+import { Pool } from 'pg';
 
-// Create a connection pool
-const pool = mysql.createPool({
-  host: '127.0.0.1',    // Your MySQL server host
-  port: 9009,           // Specify the custom port
-  user: 'admin',         // Your MySQL username
-  password: 'Akash@2019', // Your MySQL password
-  database: 'my_database', // Your MySQL database name
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
+
+// Export a function to execute queries
+export const query = async (text, params) => {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(text, params);
+    return res.rows;
+  } catch (error) {
+    console.error('Database query error:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+};
 
 export default pool;

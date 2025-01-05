@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Dai_Banna_SIL } from "next/font/google";
 import Link from 'next/link';
 
@@ -12,6 +13,7 @@ export default function Signup() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
+    const router = useRouter();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -30,6 +32,7 @@ export default function Signup() {
         setEmail('');
         setPassword('');
         setConfirmPassword('');
+        router.push('/dashboard');
     };
 
     return (

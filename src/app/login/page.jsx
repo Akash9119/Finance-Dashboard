@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Dai_Banna_SIL } from "next/font/google";
 import Link from 'next/link';
 
@@ -9,6 +10,7 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const router = useRouter();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -21,6 +23,7 @@ export default function Login() {
         console.log('Form submitted', { username, password });
         setUsername('');
         setPassword('');
+        router.push('/dashboard');
     };
 
     return (
